@@ -1,0 +1,22 @@
+# 編譯產物
+*.exe
+*.out
+*.o
+
+# 測試覆蓋報告
+*.coverprofile
+
+# logs
+*.log
+
+# 作業系統檔案
+.DS_Store
+Thumbs.db
+
+# IDE 設定
+.vscode/
+.idea/
+
+# Go modules 的 cache
+vendor/
+.env

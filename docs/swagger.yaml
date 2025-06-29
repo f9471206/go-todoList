@@ -1,0 +1,534 @@
+definitions:
+  dto.MenberUpdate:
+    properties:
+      role_id:
+        type: integer
+    required:
+    - role_id
+    type: object
+  dto.TodeListUpdateRequest:
+    properties:
+      name:
+        type: string
+      type_id:
+        type: integer
+    required:
+    - name
+    - type_id
+    type: object
+  dto.TodoListCreateRequest:
+    properties:
+      name:
+        type: string
+      type_id:
+        type: integer
+    required:
+    - name
+    - type_id
+    type: object
+  dto.TodoTypeCreateRequest:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  dto.TodoTypeUpdateRequest:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  models.Role:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      users:
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
+    type: object
+  models.TodoList:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: integer
+      deleted_by:
+        type: integer
+      details:
+        items:
+          $ref: '#/definitions/models.TodoListDetails'
+        type: array
+      id:
+        type: integer
+      name:
+        type: string
+      type:
+        $ref: '#/definitions/models.TodoTypes'
+      type_id:
+        type: integer
+      updated_at:
+        type: string
+      updated_by:
+        type: integer
+    type: object
+  models.TodoListDetails:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: integer
+      deleted_by:
+        type: integer
+      detail:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      to_do_list_id:
+        type: integer
+      updated_at:
+        type: string
+      updated_by:
+        type: integer
+      users:
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
+    type: object
+  models.TodoTypes:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: integer
+      deleted_by:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+      updated_by:
+        type: integer
+    required:
+    - name
+    type: object
+  models.User:
+    properties:
+      account:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: integer
+      deleted_by:
+        type: integer
+      id:
+        type: integer
+      roles:
+        items:
+          $ref: '#/definitions/models.Role'
+        type: array
+      todo_list_details:
+        items:
+          $ref: '#/definitions/models.TodoListDetails'
+        type: array
+      updated_at:
+        type: string
+      updated_by:
+        type: integer
+    required:
+    - account
+    type: object
+info:
+  contact: {}
+paths:
+  /api/member:
+    get:
+      consumes:
+      - application/json
+      description: 查詢 Member 清單，支援關鍵字與排序
+      parameters:
+      - description: 頁碼（預設 1）
+        in: query
+        name: page
+        type: integer
+      - description: 每頁筆數（預設 10）
+        in: query
+        name: page_size
+        type: integer
+      - description: 關鍵字搜尋
+        in: query
+        name: keyword
+        type: string
+      - description: 排序欄位與方式，如 created_at desc
+        in: query
+        name: order
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: 取得 Member 列表
+      tags:
+      - Member
+  /api/member/{id}:
+    get:
+      consumes:
+      - application/json
+      description: 根據 ID 取得 Member 詳細資料
+      parameters:
+      - description: Member ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功回傳 User
+          schema:
+            $ref: '#/definitions/models.User'
+      security:
+      - BearerAuth: []
+      summary: 取得單一 Member
+      tags:
+      - Member
+    put:
+      consumes:
+      - application/json
+      description: 根據 ID 修改 Member 權限
+      parameters:
+      - description: Member ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 要更新的 Member 資料
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.MenberUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功回傳更新後的 User
+          schema:
+            $ref: '#/definitions/models.User'
+      security:
+      - BearerAuth: []
+      summary: 修改 Member
+      tags:
+      - Member
+  /api/todo/details:
+    post:
+      consumes:
+      - application/json
+      description: 建立一個新的 todoListDetails 項目
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 建立成功回傳的 TodoListDetails 資料
+          schema:
+            $ref: '#/definitions/models.TodoListDetails'
+      security:
+      - BearerAuth: []
+      summary: 新增 todoListDetails
+      tags:
+      - TodoListDetails
+  /api/todo/details/{id}:
+    put:
+      consumes:
+      - application/json
+      description: 根據 ID 修改 TodoListDetails 名稱
+      parameters:
+      - description: TodoListDetails ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 要更新的 TodoListDetails 資料
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.TodoTypeUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功回傳更新後的 TodoType
+          schema:
+            $ref: '#/definitions/models.TodoListDetails'
+      security:
+      - BearerAuth: []
+      summary: 修改 TodoListDetails
+      tags:
+      - TodoListDetails
+  /api/todo/list:
+    get:
+      consumes:
+      - application/json
+      description: 查詢 TodoList 清單，支援關鍵字與排序
+      parameters:
+      - description: 頁碼（預設 1）
+        in: query
+        name: page
+        type: integer
+      - description: 每頁筆數（預設 10）
+        in: query
+        name: page_size
+        type: integer
+      - description: 關鍵字搜尋
+        in: query
+        name: keyword
+        type: string
+      - description: 排序欄位與方式，如 created_at desc
+        in: query
+        name: order
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: 取得 TodoList 列表
+      tags:
+      - TodoList
+    post:
+      consumes:
+      - application/json
+      description: 建議一個新的 todoList 項目
+      parameters:
+      - description: 建立 TodoList 所需資料
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.TodoListCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 建立成功回傳的 TodoList 資料
+          schema:
+            $ref: '#/definitions/models.TodoList'
+      security:
+      - BearerAuth: []
+      summary: 新增 TodoList
+      tags:
+      - TodoList
+  /api/todo/list/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 根據 ID 刪除指定的 TodoList
+      parameters:
+      - description: TodoList ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功回傳被刪除的 TodoList
+          schema:
+            $ref: '#/definitions/models.TodoList'
+      security:
+      - BearerAuth: []
+      summary: 刪除 TodoList
+      tags:
+      - TodoList
+    get:
+      consumes:
+      - application/json
+      description: 根據 ID 取得 TodoList 詳細資料
+      parameters:
+      - description: TodoList ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功回傳 TodoList
+          schema:
+            $ref: '#/definitions/models.TodoList'
+      security:
+      - BearerAuth: []
+      summary: 取得單一 TodoList
+      tags:
+      - TodoList
+    put:
+      consumes:
+      - application/json
+      description: 根據 ID 修改 TodoList 名稱
+      parameters:
+      - description: TodoList ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 要更新的 TodoList 資料
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.TodeListUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功回傳更新後的 TodoList
+          schema:
+            $ref: '#/definitions/models.TodoList'
+      security:
+      - BearerAuth: []
+      summary: 修改 TodoList
+      tags:
+      - TodoList
+  /api/todo/type:
+    get:
+      consumes:
+      - application/json
+      description: 查詢 TodoType 清單，支援關鍵字與排序
+      parameters:
+      - description: 頁碼（預設 1）
+        in: query
+        name: page
+        type: integer
+      - description: 每頁筆數（預設 10）
+        in: query
+        name: page_size
+        type: integer
+      - description: 關鍵字搜尋
+        in: query
+        name: keyword
+        type: string
+      - description: 排序欄位與方式，如 created_at desc
+        in: query
+        name: order
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: 取得 TodoType 列表
+      tags:
+      - TodoTypes
+    post:
+      consumes:
+      - application/json
+      description: 建立一個新的 TodoType 項目
+      parameters:
+      - description: 建立 TodoType 所需資料
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.TodoTypeCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 建立成功回傳的 TodoType 資料
+          schema:
+            $ref: '#/definitions/models.TodoTypes'
+      security:
+      - BearerAuth: []
+      summary: 新增 TodoType
+      tags:
+      - TodoTypes
+  /api/todo/type/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 根據 ID 刪除指定的 TodoType
+      parameters:
+      - description: TodoType ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功回傳被刪除的 TodoType
+          schema:
+            $ref: '#/definitions/models.TodoTypes'
+      security:
+      - BearerAuth: []
+      summary: 刪除 TodoType
+      tags:
+      - TodoTypes
+    get:
+      consumes:
+      - application/json
+      description: 根據 ID 取得 TodoType 詳細資料
+      parameters:
+      - description: TodoType ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功回傳 TodoType
+          schema:
+            $ref: '#/definitions/models.TodoTypes'
+      security:
+      - BearerAuth: []
+      summary: 取得單一 TodoType
+      tags:
+      - TodoTypes
+    put:
+      consumes:
+      - application/json
+      description: 根據 ID 修改 TodoType 名稱
+      parameters:
+      - description: TodoType ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 要更新的 TodoType 資料
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.TodoTypeUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功回傳更新後的 TodoType
+          schema:
+            $ref: '#/definitions/models.TodoTypes'
+      security:
+      - BearerAuth: []
+      summary: 修改 TodoType
+      tags:
+      - TodoTypes
+swagger: "2.0"
