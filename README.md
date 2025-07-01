@@ -68,10 +68,19 @@ go mod tidy
 go run main.go
 ```
 
-或使用 Docker：
+🐳 Docker 環境說明
+請確認已安裝 Docker 與 Docker Compose。
+
+啟動指令：
+
 ```
 docker-compose up --build
 ```
+服務包括：
+
+- app：Go Web 服務，映射本機 8080 端口
+
+- db：MySQL 8.x 服務，映射本機 3306 端口，資料保存於 Docker volume db_data
 
 ## 🔄 資料庫操作（migrate）
 請先安裝 migrate CLI：
@@ -83,15 +92,21 @@ curl -L https://github.com/golang-migrate/migrate/releases/... > /usr/local/bin/
 chmod +x /usr/local/bin/migrate
 ```
 
-## 🌱 種子（seed）
-```
-make db-seed
-```
+## 🛠️ 資料庫遷移與種子指令（Makefile）
+透過 Makefile 方便執行資料庫 migration 和種子作業。
 
-## ✅ 單元測試
-```
-go test ./services/...
-```
+會自動從 .env 或 .env.local 讀取資料庫設定組合 MySQL DSN。
+
+| 指令                    | 說明                                | 使用範例                                          |
+| --------------------- | --------------------------------- | --------------------------------------------- |
+| `make migrate-create` | 建立新的 migration 檔案，需帶 `name` 參數    | `make migrate-create name=create_users_table` |
+| `make migrate-up`     | 執行所有尚未執行的 migration               | `make migrate-up`                             |
+| `make migrate-down`   | 回退上一次的 migration（危險操作）            | `make migrate-down`                           |
+| `make migrate-drop`   | 刪除所有資料表（⚠️ 僅測試環境使用）               | `make migrate-drop`                           |
+| `make migrate-force`  | 強制設定 migration 版本，需帶 `VERSION` 參數 | `make migrate-force VERSION=2`                |
+| `make migrate-reset`  | 重置資料庫，先 drop 再 up                 | `make migrate-reset`                          |
+| `make db-seed`        | 執行初始化種子資料                         | `make db-seed`                                |
+
 
 ## 🔐 Swagger 文件
 ```
@@ -106,3 +121,12 @@ http://localhost:8080/swagger/index.html
 ```
 mockgen -source=path/to/your/interface_file.go -destination=path/to/mocks/mock_interface.go -package=mocks
 ```
+
+## 📄 環境變數說明
+- .env.local — 本機開發環境設定
+
+- .env.test — 測試環境設定（unit test）
+
+- .env.docker — Docker 容器環境設定
+
+- .env.example — 範例檔，供新開發者複製使用
