@@ -1,6 +1,11 @@
 package config
 
-import "os"
+import (
+	"log"
+	"os"
+
+	"github.com/joho/godotenv"
+)
 
 var (
 	JWTSecret string
@@ -13,7 +18,19 @@ var (
 	ENV       string
 )
 
-func init() {
+// LoadEnv 載入指定的 env 檔案，並設定全局變數
+func LoadEnv(filename string) error {
+	err := godotenv.Load(filename)
+	if err != nil {
+		log.Printf("❌ 無法載入 %s 檔案: %v", filename, err)
+		return err
+	}
+	loadEnvVars()
+	return nil
+}
+
+// loadEnvVars 從 os.Getenv 讀取設定並賦值給全局變數
+func loadEnvVars() {
 	JWTSecret = mustGetenv("JWT_SECRET")
 	DBUser = mustGetenv("DB_USER")
 	DBPass = mustGetenv("DB_PASSWORD")
@@ -30,4 +47,8 @@ func mustGetenv(key string) string {
 		panic("Environment variable " + key + " not set")
 	}
 	return val
+}
+
+func IsLocal() bool {
+	return ENV != "production"
 }

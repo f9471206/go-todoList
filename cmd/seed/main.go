@@ -4,13 +4,14 @@ import (
 	"log"
 	"todolist/config"
 	"todolist/db/seed"
-
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Println("❌ 無法載入 .env 檔案")
+	// 載入環境變數
+	if err := config.LoadEnv(".env.local"); err != nil {
+		if err := config.LoadEnv(".env"); err != nil {
+			log.Fatal("❌ 無法載入任何環境變數檔案")
+		}
 	}
 
 	config.ConnectDatabase()

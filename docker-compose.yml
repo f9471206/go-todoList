@@ -10,7 +10,7 @@ services:
       - .:/app
       - /app/pkg/mod
     env_file:
-      - .env
+      - .env.docker
     command: ["fresh"]
     depends_on:
       - db

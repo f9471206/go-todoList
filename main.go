@@ -1,16 +1,15 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
 	"todolist/config"
-	"todolist/db/seed"
 	"todolist/middleware"
 	"todolist/routes"
 	"todolist/utils"
@@ -18,21 +17,19 @@ import (
 	_ "todolist/docs"
 )
 
-// ✅ 提早載入 .env
-func init() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("❌ 無法載入 .env 檔案")
-	}
-}
-
 func main() {
+	// 明確載入環境變數檔案
+	// 嘗試載入 .env.local，失敗再載 .env
+	if err := config.LoadEnv(".env.local"); err != nil {
+		if err := config.LoadEnv(".env"); err != nil {
+			log.Fatal("❌ 無法載入任何環境變數檔案")
+		}
+	}
+
 	utils.InitLogger(true)
 	utils.Logger.Info("Logger 初始化成功")
 
 	config.ConnectDatabase()
-
-	// ✅ 呼叫種子資料
-	seed.Seed(config.DB)
 
 	r := gin.Default()
 	r.Use(middleware.RecoveryMiddleware())
@@ -40,6 +37,10 @@ func main() {
 
 	if config.ENV != "production" {
 		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	}
+
+	for _, route := range r.Routes() {
+		fmt.Printf("Route: %s %s\n", route.Method, route.Path)
 	}
 
 	r.Run(":" + config.AppPort)
